@@ -28,7 +28,7 @@ module Epp #:nodoc:
       @port       = attributes[:port]       || 700
       @lang       = attributes[:lang]       || "en"
       @services   = attributes[:services]   || ["urn:ietf:params:xml:ns:domain-1.0", "urn:ietf:params:xml:ns:contact-1.0", "urn:ietf:params:xml:ns:host-1.0"]
-      @extensions = attributes[:extensions] || []
+      @extensions = attributes[:extensions] || ["urn:ietf:params:xml:ns:secDNS-1.1", "urn:ietf:params:xml:ns:rgp-1.0", "urn:ietf:params:xml:ns:idn-1.0", "urn:ietf:params:xml:ns:launch-1.0", "urn:ietf:params:xml:ns:fee-0.7"]
       @version    = attributes[:version]    || "1.0"
       @cert       = attributes[:cert]       || nil
       @key        = attributes[:key]        || nil
@@ -40,9 +40,9 @@ module Epp #:nodoc:
       xml = Document.new
       xml.root = Node.new("epp")
 
-      xml.root["xmlns"] = "https://epp.tld.ee/schema/epp-ee-1.0.xsd"
+      xml.root["xmlns"] = "urn:ietf:params:xml:ns:epp-1.0"
       xml.root["xmlns:xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
-      xml.root["xsi:schemaLocation"] = "lib/schemas/epp-ee-1.0.xsd"
+      xml.root["xsi:schemaLocation"] = "urn:ietf:params:xml:ns:epp-1.0 epp-1.0.xsd"
 
       return xml
     end
@@ -52,12 +52,17 @@ module Epp #:nodoc:
     # around the request, so we can close the socket immediately after
     # the request is made.
     def request(xml)
+      Rails.logger.debug("vrrrrrrrrrr")
+      Rails.logger.debug("vrrrrrrrrrr #{xml}")
       open_connection
+      Rails.logger.debug("vrrrrrrrrrr")
 
       @logged_in = true if login
 
+      Rails.logger.debug("vrrrrrrrrrr 123")
       begin
         @response = send_request(xml)
+        Rails.logger.debug("vrrrrrrrrrr #{@response}")
       ensure
         @logged_in = false if @logged_in && logout
 
@@ -168,6 +173,8 @@ module Epp #:nodoc:
       end
 
       command << Node.new("clTRID", SecureRandom.uuid)
+
+      Rails.logger.debug("test login #{xml}")
 
       response = Hpricot::XML(send_request(xml.to_s))
 
