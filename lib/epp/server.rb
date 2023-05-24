@@ -52,17 +52,14 @@ module Epp #:nodoc:
     # around the request, so we can close the socket immediately after
     # the request is made.
     def request(xml)
-      Rails.logger.debug("vrrrrrrrrrr")
-      Rails.logger.debug("vrrrrrrrrrr #{xml}")
+      puts ("FINAL_EPP_REQUEST ==> #{xml}")
       open_connection
-      Rails.logger.debug("vrrrrrrrrrr")
 
       @logged_in = true if login
 
-      Rails.logger.debug("vrrrrrrrrrr 123")
       begin
         @response = send_request(xml)
-        Rails.logger.debug("vrrrrrrrrrr #{@response}")
+        puts ("FINAL_EPP_RESPOND ==> #{@response}")
       ensure
         @logged_in = false if @logged_in && logout
 
@@ -173,8 +170,6 @@ module Epp #:nodoc:
       end
 
       command << Node.new("clTRID", SecureRandom.uuid)
-
-      Rails.logger.debug("test login #{xml}")
 
       response = Hpricot::XML(send_request(xml.to_s))
 
